@@ -1,111 +1,168 @@
 # NovaWorks AI Project Manager — Meeting to Project CRM
 
 > The Infinity Hack ’26 · AI Project Manager Challenge
+> Paste a meeting transcript → AI creates projects, assigns managers and developers, and sets deadlines and estimated hours automatically.
 
 ## Team
-- Team name: [Trew]
-- Members & responsibilities: [shanawar Taha,full stack development], [Hassan Nawaz — Frontend developer], [Taiba saleem — backend developer]
-- Repository: [GitHub URL]
-
-## What Works
-- ✅ **Login/logout** with the 10 seeded demo accounts (signed, http-only session cookie; passwords bcrypt-hashed).
-- ✅ **Idempotent seeder** (`npm run setup`) creates the tables and upserts all 10 users. Re-running never duplicates.
-- ✅ **Admin → Create from Transcript**: paste the meeting, and the AI extracts projects and tasks, resolves managers and developers against the team directory, and sets deadlines and estimated hours.
-- ✅ **Validation before saving**: manager must be a MANAGER, assignee must be an AGENT, valid dates, hours > 0, task deadline ≤ project deadline. If anything is unresolved, **nothing is saved**; the admin sees the issues and can correct them in an editable form, then re-validate.
-- ✅ **All-or-nothing save** in a single database transaction. The button is disabled while processing, so double clicks can't create duplicates.
-- ✅ **Role-based access enforced on the server** (pages and API routes):
-  - Admin → all projects and tasks, plus transcript creation
-  - Manager → only projects where they are the manager
-  - Agent → only their own tasks, plus the related project's name and manager
-  - Direct requests for someone else's project return **403**
-- ✅ Projects list (cards), project detail (client, manager, deadline, tasks), My Tasks, read-only Team Directory.
-- ✅ Persistent PostgreSQL storage (data survives a refresh or restart).
-- Not built (not required): signup, password reset, user management, cost, progress tracking.
-
-## Technology Stack
-- Frontend + Backend: **Next.js 15** (App Router, React 19, TypeScript) — API routes in `src/app/api`
-- Styling: Tailwind CSS 4 (UI designed in Google Stitch style: sidebar dashboard, cards, tables)
-- Database: **PostgreSQL** (local Postgres 14+ or hosted Aiven / Neon) via `pg`
-- AI: **Google Gemini** (`gemini-2.5-flash`, JSON schema output, temperature 0) — or any OpenAI-compatible API (OpenAI, Groq, OpenRouter)
-- Auth: HS256-signed JWT in an http-only cookie (`jose`). The current user is always read from the session, never from request params.
+- **Team name:** [TEAM NAME]
+- **Members & responsibilities:**
+  - Shanawar — full-stack development, AI integration, deployment
+  - [Member 2] — [responsibility]
+  - [Member 3] — [responsibility]
+  - [Member 4] — [responsibility]
+- **Repository:** https://github.com/shanawartaha31-rgb/novaworks-crm
 
 ## Links
-- Live application: [novaworks-crm.vercel.app]
+- **Live application:** [https://YOUR-APP.vercel.app]
+- **Demo video:** [VIDEO LINK]
+- **Demo login:** `admin@novaworks.example` / `Demo123!`
+
+## What Works
+- ✅ **Login/logout** with the 10 seeded demo accounts (signed http-only session cookie; passwords hashed with bcrypt). No signup needed.
+- ✅ **Idempotent seeder** (`npm run setup`) creates the tables and upserts all 10 users by email. Re-running never creates duplicates.
+- ✅ **Admin → Create from Transcript**: paste the meeting, and the AI extracts projects and tasks, matches people to the team directory, and sets deadlines and estimated hours. It follows final decisions (revised dates, hours and owners) and ignores rejected features (payments, inventory, maps, email/ticketing) and non-employees (e.g. Kamran).
+- ✅ **Validation before saving**: manager must be an existing MANAGER, assignee an existing AGENT, dates must be valid, hours > 0, and a task deadline can't be later than its project deadline. If anything is unresolved, **nothing is saved**. The admin sees the problems and can correct them in an editable form, then re-validate.
+- ✅ **All-or-nothing save** in one database transaction. The button is disabled while processing, so double clicks can't create duplicates. There's a loading state, a success summary and a clear error message.
+- ✅ **Role-based access enforced on the server** (pages and API routes, not just hidden buttons):
+  - **Admin** → all projects and tasks, plus transcript creation
+  - **Manager** → only projects where they are the manager
+  - **Agent** → only their own tasks, plus the related project's name and manager
+  - Direct requests for someone else's project return **403**; requests without a login return **401**
+- ✅ Screens: Login (one-click demo accounts), Projects (cards), Project detail (client, manager, deadline, tasks), My Tasks, read-only Team Directory.
+- ✅ Persistent PostgreSQL storage: data survives refreshes and restarts.
+- ➖ Not built (not required by the brief): signup, password reset, user management, cost calculation, progress monitoring.
+
+## Technology Stack
+- **Frontend + Backend:** Next.js 15 (App Router, React 19, TypeScript), with API routes in `src/app/api`
+- **Styling:** Tailwind CSS 4
+- **Database:** PostgreSQL on **Neon** (works with any Postgres: local, Aiven, Supabase), using the `pg` driver
+- **AI:** **Groq** API, model `openai/gpt-oss-120b`, through an OpenAI-compatible endpoint (JSON mode, temperature 0). Google Gemini is also supported through `GEMINI_API_KEY`.
+- **Auth/session:** HS256-signed JWT in an http-only cookie (`jose`). The current user is always read from the session, never from request parameters.
+
+## Project Structure
+```
+db/
+  schema.sql            tables: users, projects, tasks
+  setup.mjs             creates tables + seeds 10 demo users (idempotent)
+  reset-projects.mjs    deletes generated projects/tasks, keeps users
+  users.mjs             demo account definitions
+src/lib/
+  ai.ts                 prompt + AI call (Groq / OpenAI-compatible / Gemini)
+  validate.ts           draft validation & name→ID resolution
+  access.ts             role-based data access (used by pages and APIs)
+  auth.ts               login session
+src/app/
+  api/transcript        POST: AI extraction → validate → transactional save
+  api/projects, api/projects/[id], api/tasks, api/team, api/auth/*
+  login, projects, projects/[id], my-tasks, team, transcript   (UI pages)
+public/sample-transcript.txt   the supplied meeting transcript
+```
 
 ## Requirements
-- Node.js 18.18+ (20 or 22 recommended) and npm
-- PostgreSQL database (local, or free hosted Aiven/Neon)
-- A Gemini API key (free at https://aistudio.google.com/apikey) **or** an OpenAI-compatible key
+- Node.js 20 or 22 LTS, and npm
+- A PostgreSQL database (free Neon: https://neon.tech)
+- A Groq API key (free: https://console.groq.com/keys) **or** a Gemini API key
 
 ## Run Locally
 ```sh
-git clone [YOUR_REPOSITORY_URL]
+git clone https://github.com/shanawartaha31-rgb/novaworks-crm.git
 cd novaworks-crm
 npm install
 cp .env.example .env          # Windows: copy .env.example .env
-# edit .env → set DATABASE_URL, SESSION_SECRET and GEMINI_API_KEY
-npm run setup                 # creates tables + seeds 10 demo users (safe to re-run)
-npm run dev                   # http://localhost:3000
+# edit .env → set DATABASE_URL, SESSION_SECRET and the AI variables (see below)
+npm run setup                 # creates tables + seeds the 10 demo users (safe to re-run)
+npm run dev                   # open http://localhost:3000
 ```
-Only one process needs to stay running (`npm run dev`), since frontend and backend are the same Next.js app.
-For production mode: `npm run build && npm start`.
+Only one process needs to keep running (`npm run dev`), because the frontend and backend are the same Next.js app.
+Production mode: `npm run build && npm start`.
 
-**Reset generated projects/tasks (keeps users):** `npm run reset:projects`
+**Reset generated projects/tasks between tests (keeps users):**
+```sh
+npm run reset:projects
+```
 
 ## Environment Variables
 | Variable | Purpose | Where configured |
 | --- | --- | --- |
-| `DATABASE_URL` | PostgreSQL connection string (add `?sslmode=require` for Aiven/Neon) | backend / Vercel |
-| `SESSION_SECRET` | Signs the session cookie | backend / Vercel |
-| `GEMINI_API_KEY` | Gemini credential (option A) | backend only |
-| `GEMINI_MODEL` | Gemini model, default `gemini-2.5-flash` | backend |
-| `OPENAI_API_KEY` | OpenAI-compatible credential (option B) | backend only |
-| `OPENAI_BASE_URL` | e.g. `https://api.groq.com/openai/v1` | backend |
-| `OPENAI_MODEL` | e.g. `gpt-4o-mini` / `llama-3.3-70b-versatile` | backend |
+| `DATABASE_URL` | PostgreSQL connection string (ends with `?sslmode=require` for Neon) | `.env` / Vercel |
+| `SESSION_SECRET` | Signs the login session cookie | `.env` / Vercel |
+| `OPENAI_API_KEY` | Groq API key (`gsk_...`) | backend only |
+| `OPENAI_BASE_URL` | `https://api.groq.com/openai/v1` | backend |
+| `OPENAI_MODEL` | `openai/gpt-oss-120b` | backend |
+| `GEMINI_API_KEY` | Optional alternative AI provider; leave empty to use Groq | backend only |
+| `GEMINI_MODEL` | Gemini model name, if Gemini is used | backend |
 
-No secret is exposed to the browser. Only `.env.example` (placeholders) is committed.
+Example `.env`:
+```
+DATABASE_URL=postgresql://USER:PASSWORD@HOST/neondb?sslmode=require
+SESSION_SECRET=any-long-random-string
+GEMINI_API_KEY=
+OPENAI_API_KEY=gsk_your_key
+OPENAI_BASE_URL=https://api.groq.com/openai/v1
+OPENAI_MODEL=openai/gpt-oss-120b
+```
+Secrets are never exposed to the browser, and only `.env.example` (placeholders) is committed.
 
 ## Demo Login Accounts
-Fictional identifiers. No signup is needed; they are created by `npm run setup`. The login page also has one-click demo account buttons.
+Fictional identifiers created by `npm run setup`. The login page also has one-click buttons for each account.
 
-| Ref | Role | Name | Demo email | Password |
-| --- | --- | --- | --- | --- |
-| ADMIN | Admin | Admin | admin@novaworks.example | Demo123! |
-| PM01 | Manager | Ayesha Khan | ayesha@novaworks.example | Demo123! |
-| PM02 | Manager | Bilal Ahmed | bilal@novaworks.example | Demo123! |
-| PM03 | Manager | Hina Malik | hina@novaworks.example | Demo123! |
-| DEV01 | Agent | Ali Raza | ali@novaworks.example | Demo123! |
-| DEV02 | Agent | Hamza Shah | hamza@novaworks.example | Demo123! |
-| DEV03 | Agent | Sara Noor | sara@novaworks.example | Demo123! |
-| DEV04 | Agent | Usman Tariq | usman@novaworks.example | Demo123! |
-| DEV05 | Agent | Zain Abbas | zain@novaworks.example | Demo123! |
-| DEV06 | Agent | Maryam Asif | maryam@novaworks.example | Demo123! |
+| Ref | Role | Name | Specialization | Demo email | Password |
+| --- | --- | --- | --- | --- | --- |
+| ADMIN | Admin | Admin | Administrator | admin@novaworks.example | Demo123! |
+| PM01 | Manager | Ayesha Khan | Web PM | ayesha@novaworks.example | Demo123! |
+| PM02 | Manager | Bilal Ahmed | Mobile PM | bilal@novaworks.example | Demo123! |
+| PM03 | Manager | Hina Malik | AI PM | hina@novaworks.example | Demo123! |
+| DEV01 | Agent | Ali Raza | Full-Stack | ali@novaworks.example | Demo123! |
+| DEV02 | Agent | Hamza Shah | Full-Stack | hamza@novaworks.example | Demo123! |
+| DEV03 | Agent | Sara Noor | App Developer | sara@novaworks.example | Demo123! |
+| DEV04 | Agent | Usman Tariq | App Developer | usman@novaworks.example | Demo123! |
+| DEV05 | Agent | Zain Abbas | AI Developer | zain@novaworks.example | Demo123! |
+| DEV06 | Agent | Maryam Asif | AI Developer | maryam@novaworks.example | Demo123! |
 
 ## How Judges Can Test
 1. Log in as **admin** → **Create from Transcript**.
-2. Click **📄 Load supplied transcript** (file: `public/sample-transcript.txt`) or paste your own.
-3. Click **✨ Create from Transcript** → expect **3 projects, 12 tasks** (UrbanCart 40h, QuickServe 46h, HelpDeskPro 38h).
-4. Open UrbanCart: manager Ayesha, deadline 20 Oct 2026, 4 tasks.
-5. Log in as **Ayesha** → only UrbanCart.
-6. Log in as **Ali** → My Tasks shows only his 3 UrbanCart tasks.
-7. Log in as **Hamza** → 2 API tasks across UrbanCart and QuickServe.
-8. Direct access check: as Ayesha, open `/api/projects/<QuickServe id>` → `403`.
-9. Refresh → data persists.
-10. Modified transcript: run `npm run reset:projects`, change Usman's final estimate to 12 hours / 23 October, then create again → only that task changes.
+2. Click **📄 Load supplied transcript** (file: `public/sample-transcript.txt`) or paste any transcript.
+3. Click **✨ Create from Transcript** → expect **3 projects with 12 tasks**.
 
-## Deployment Details (Vercel + Aiven)
-1. Create a free PostgreSQL database on **Aiven** (https://aiven.io/free-postgresql-database) and copy the Service URI (`...?sslmode=require`).
-2. Locally, put that URI in `.env` as `DATABASE_URL` and run `npm run setup` to create tables and seed users in the hosted DB.
-3. Push to GitHub → import the repo in **Vercel** (framework auto-detected: Next.js, build `next build`).
-4. In Vercel → Settings → Environment Variables add `DATABASE_URL`, `SESSION_SECRET`, `GEMINI_API_KEY` (and optionally `GEMINI_MODEL`).
-5. Deploy → open the URL and log in with the demo accounts.
-- Deployment status: [Live / Local only]
-- Frontend + backend host: Vercel (same Next.js app)
-- Database: Aiven PostgreSQL
-- Deployed branch/commit: [main / SHA]
+   | Project | Manager | Deadline | Tasks | Hours |
+   | --- | --- | --- | --- | --- |
+   | UrbanCart Website | Ayesha | 2026-10-20 | 4 | 40 |
+   | QuickServe Mobile App | Bilal | 2026-10-24 | 4 | 46 |
+   | HelpDeskPro AI Assistant | Hina | 2026-10-22 | 4 | 38 |
+
+4. Open **UrbanCart**: client UrbanCart Clothing, manager Ayesha, deadline 20 Oct 2026, 4 tasks with owners, deadlines and hours.
+5. Log out → log in as **Ayesha** → only UrbanCart is visible.
+6. Log in as **Ali** → **My Tasks** shows only his 3 UrbanCart tasks.
+7. Log in as **Hamza** → his 2 API tasks across UrbanCart and QuickServe.
+8. Direct access check: while logged in as Ayesha, open `/api/projects/<QuickServe project id>` → **403 Forbidden**.
+9. Refresh the page → data persists.
+10. **Modified transcript test:** run `npm run reset:projects` (or use a fresh database), change Usman's final estimate in the recap to **12 hours / 23 October**, and create again → only that task changes.
+
+## Deployment Details (Vercel + Neon + Groq)
+1. Created a free PostgreSQL database on **Neon** (https://neon.tech) and copied the connection string (ending `?sslmode=require`).
+2. Locally, set that string as `DATABASE_URL` in `.env` and ran `npm run setup` to create the tables and seed the 10 demo users in the hosted database.
+3. Pushed to GitHub → imported the repository in **Vercel** (framework auto-detected: Next.js, build command `next build`).
+4. In Vercel → Settings → Environment Variables, added `DATABASE_URL`, `SESSION_SECRET`, `OPENAI_API_KEY`, `OPENAI_BASE_URL` and `OPENAI_MODEL`.
+5. Deployed → opened the live URL and logged in with the demo accounts.
+
+- **Deployment status:** Live
+- **Live link:** [https://YOUR-APP.vercel.app]
+- **Frontend + backend host:** Vercel (single Next.js app)
+- **Database:** Neon PostgreSQL (free tier)
+- **AI provider:** Groq — `openai/gpt-oss-120b`
+- **Deployed branch/commit:** main / [COMMIT SHA]
 
 ## Known Limitations
-- AI output quality depends on the chosen model; validation blocks bad output from being saved, and the admin can correct it.
-- Free AI tiers can rate-limit. Wait a few seconds and retry.
-- Editing projects/tasks after creation is only available through the correction form (optional feature).
-- Running the transcript twice creates a second copy. Use `npm run reset:projects` between tests.
+- Gemini's free tier was overloaded (HTTP 503) during the hackathon, so the deployed app uses Groq. Gemini is still supported through `GEMINI_API_KEY`.
+- AI output depends on the model. Validation blocks invalid output from being saved, and the admin can correct it before saving.
+- Free AI tiers may rate-limit; if that happens, wait a few seconds and retry.
+- Running the same transcript twice creates a second copy of the projects. Use `npm run reset:projects` between tests.
+- Editing projects/tasks after they are created isn't built (it was optional). Corrections are made in the pre-save correction form.
+
+## Submission Summary
+- **Source repository:** https://github.com/shanawartaha31-rgb/novaworks-crm
+- **Live link:** [https://YOUR-APP.vercel.app]
+- **Demo video:** [VIDEO LINK]
+- **Setup and seed commands:** `npm install` → `npm run setup` → `npm run dev`
+- **Demo login accounts:** all 10 working (password `Demo123!`)
+- **Features completed:** login/logout, seeded accounts, AI transcript → projects/tasks, validation and correction, transactional save, role-based access (Admin / Manager / Agent), projects list and detail, My Tasks, Team Directory, persistence, live deployment
