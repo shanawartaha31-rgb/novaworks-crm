@@ -4,17 +4,15 @@
 > Paste a meeting transcript → AI creates projects, assigns managers and developers, and sets deadlines and estimated hours automatically.
 
 ## Team
-- **Team name:** [TEAM NAME]
+- **Team name:** [Trew]
 - **Members & responsibilities:**
   - Shanawar — full-stack development, AI integration, deployment
-  - [Member 2] — [responsibility]
-  - [Member 3] — [responsibility]
-  - [Member 4] — [responsibility]
+  - [Hassan Nawaz] — [Frontend developer]
+  - [Taiba saleem] — [Backend developer]
 - **Repository:** https://github.com/shanawartaha31-rgb/novaworks-crm
 
 ## Links
-- **Live application:** [https://YOUR-APP.vercel.app]
-- **Demo video:** [VIDEO LINK]
+- **Live application:** [https://novaworks-crm.vercel.app]
 - **Demo login:** `admin@novaworks.example` / `Demo123!`
 
 ## What Works
