@@ -3,8 +3,8 @@
 > The Infinity Hack ’26 · AI Project Manager Challenge
 
 ## Team
-- Team name: [your team name]
-- Members & responsibilities: [name — role], [name — role], [name — role], [name — role]
+- Team name: [Trew]
+- Members & responsibilities: [shanawar Taha,full stack development], [Hassan Nawaz — Frontend developer], [Taiba saleem — backend developer]
 - Repository: [GitHub URL]
 
 ## What Works
@@ -30,8 +30,7 @@
 - Auth: HS256-signed JWT in an http-only cookie (`jose`). The current user is always read from the session, never from request params.
 
 ## Links
-- Live application: [Vercel URL or Not deployed]
-- Demo video: [URL]
+- Live application: [novaworks-crm.vercel.app]
 
 ## Requirements
 - Node.js 18.18+ (20 or 22 recommended) and npm
